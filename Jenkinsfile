@@ -9,21 +9,24 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo "Building application..."
+                sh 'docker build -t trend-devops-app .'
             }
         }
 
-        stage('Test') {
+        stage('Tag Image') {
             steps {
-                echo "Running tests..."
+                sh 'docker tag trend-devops-app thanikavel/trend-devops-app:latest'
             }
         }
 
-        stage('Deploy') {
+        stage('Push Image to DockerHub') {
             steps {
-                echo "Deploying application..."
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                    sh 'docker push thanikavel/trend-devops-app:latest'
+                }
             }
         }
 
