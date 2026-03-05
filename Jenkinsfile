@@ -17,13 +17,21 @@ pipeline {
 
         stage('Tag Image') {
             steps {
-                sh 'docker tag trend-devops-app thanikdevops/trend-devops-app:latest'
+                sh 'docker tag trend-devops-app thanikavel/trend-devops-app:latest'
             }
         }
 
-        stage('Push Image') {
+        stage('Docker Login') {
             steps {
-                sh 'docker push thanikdevops/trend-devops-app:latest'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Image to DockerHub') {
+            steps {
+                sh 'docker push thanikavel/trend-devops-app:latest'
             }
         }
 
